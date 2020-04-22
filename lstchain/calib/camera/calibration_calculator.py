@@ -61,6 +61,8 @@ class CalibrationCalculator(Component):
 
     def __init__(
         self,
+        parent=None,
+        config=None,
         **kwargs
 
     ):
@@ -84,15 +86,15 @@ class CalibrationCalculator(Component):
 
         """
 
-        super().__init__(**kwargs)
+        super().__init__(config=config, parent=parent, **kwargs)
 
         self.flatfield = FlatFieldCalculator.from_name(
             self.flatfield_product,
-            **kwargs
+            parent=self,
         )
         self.pedestal = PedestalCalculator.from_name(
             self.pedestal_product,
-            **kwargs
+            parent=self,
         )
 
         msg = "tel_id not the same for all calibration components"
@@ -132,24 +134,6 @@ class LSTCalibrationCalculator(CalibrationCalculator):
         300,
         help='Temporary cut on LG std against Lidar events till the calibox TIB do not work (default for filter 5.2) '
     ).tag(config=True)
-
-    def __init__(self, **kwargs):
-        """
-         Calibration calculator for LST camera
-         Fills the MonitoringCameraContainer on the base of calibration events
-
-         Parameters:
-         ----------
-         minimum_hg_charge_median :
-             Temporary cut on HG charge till the calibox TIB do not work
-             (default for filter 5.2)
-
-         maximum_lg_charge_std
-             Temporary cut on LG std against Lidar events till the calibox TIB do not work
-            (default for filter 5.2)
-
-        """
-        super().__init__(**kwargs)
 
     def calculate_calibration_coefficients(self, event):
         """
@@ -209,8 +193,6 @@ class LSTCalibrationCalculator(CalibrationCalculator):
         # eliminate inf values id any (still necessary?)
         calib_data.dc_to_pe[np.isinf(calib_data.dc_to_pe)] = 0
 
-
-
     def process_interleaved(self, event):
         """
         Process interleaved calibration events (pedestals and FF)
@@ -255,4 +237,3 @@ class LSTCalibrationCalculator(CalibrationCalculator):
 
         # calculates calibration values
         self.calculate_calibration_coefficients(event)
-

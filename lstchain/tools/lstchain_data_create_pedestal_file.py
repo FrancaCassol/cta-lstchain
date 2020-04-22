@@ -76,16 +76,14 @@ class PedestalHDF5Writer(Tool):
         self.r0calibrator = None
 
     def setup(self):
-
-        kwargs = dict(parent=self)
-        self.eventsource = EventSource.from_config(**kwargs)
+        self.eventsource = EventSource.from_config(parent=self)
         self.pedestal = PedestalCalculator.from_name(
             self.calculator_product,
-            **kwargs
+            parent=self
         )
         self.r0calibrator = CameraR0Calibrator.from_name(
             self.r0calibrator_product,
-            **kwargs
+            parent=self,
         )
         self.group_name = 'tel_' + str(self.pedestal.tel_id)
 
@@ -98,8 +96,6 @@ class PedestalHDF5Writer(Tool):
         Example of tool that extract the pedestal value per pixel and write the pedestal
         container to disk
         '''
-
-
         write_config = True
 
         # loop on events
